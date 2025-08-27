@@ -179,6 +179,7 @@ namespace sl
         };
 
         #region DLL Calls
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         const string nameDll = sl.ZEDCommon.NameDLL;
 
         [DllImport(nameDll, EntryPoint = "sl_mat_create_new")]
@@ -307,6 +308,63 @@ namespace sl
 
         [DllImport(nameDll, EntryPoint = "sl_mat_clone")]
         private static extern void dllz_mat_clone(System.IntPtr ptr, System.IntPtr ptrSource);
+#else
+        // Fallback implementations for non-Windows platforms
+        private static IntPtr dllz_mat_create_new(int width, int height, int type, int mem) { 
+            Debug.LogWarning("ZED SDK: Mat operations are not supported on this platform. Windows is required."); 
+            return IntPtr.Zero; 
+        }
+        private static IntPtr dllz_mat_create_new_empty() { 
+            Debug.LogWarning("ZED SDK: Mat operations are not supported on this platform. Windows is required."); 
+            return IntPtr.Zero; 
+        }
+        private static bool dllz_mat_is_init(System.IntPtr ptr) { return false; }
+        private static bool dllz_mat_free(System.IntPtr ptr, int type) { return false; }
+        private static bool dllz_mat_get_infos(System.IntPtr ptr, byte[] buffer) { return false; }
+        private static int dllz_mat_get_value_float(System.IntPtr ptr, int x, int y, out float value, int mem) { value = 0; return -1; }
+        private static int dllz_mat_get_value_float2(System.IntPtr ptr, int x, int y, out float2 value, int mem) { value = new float2(); return -1; }
+        private static int dllz_mat_get_value_float3(System.IntPtr ptr, int x, int y, out float3 value, int mem) { value = new float3(); return -1; }
+        private static int dllz_mat_get_value_float4(System.IntPtr ptr, int x, int y, out float4 value, int mem) { value = new float4(); return -1; }
+        private static int dllz_mat_get_value_uchar(System.IntPtr ptr, int x, int y, out byte value, int mem) { value = 0; return -1; }
+        private static int dllz_mat_get_value_uchar2(System.IntPtr ptr, int x, int y, out char2 value, int mem) { value = new char2(); return -1; }
+        private static int dllz_mat_get_value_uchar3(System.IntPtr ptr, int x, int y, out char3 value, int mem) { value = new char3(); return -1; }
+        private static int dllz_mat_get_value_uchar4(System.IntPtr ptr, int x, int y, out char4 value, int mem) { value = new char4(); return -1; }
+        private static int dllz_mat_set_value_float(System.IntPtr ptr, int x, int y, float value, int mem) { return -1; }
+        private static int dllz_mat_set_value_float2(System.IntPtr ptr, int x, int y, float2 value, int mem) { return -1; }
+        private static int dllz_mat_set_value_float3(System.IntPtr ptr, int x, int y, float3 value, int mem) { return -1; }
+        private static int dllz_mat_set_value_float4(System.IntPtr ptr, int x, int y, float4 value, int mem) { return -1; }
+        private static int dllz_mat_set_value_uchar(System.IntPtr ptr, int x, int y, byte value, int mem) { return -1; }
+        private static int dllz_mat_set_value_uchar2(System.IntPtr ptr, int x, int y, char2 value, int mem) { return -1; }
+        private static int dllz_mat_set_value_uchar3(System.IntPtr ptr, int x, int y, char3 value, int mem) { return -1; }
+        private static int dllz_mat_set_value_uchar4(System.IntPtr ptr, int x, int y, char4 value, int mem) { return -1; }
+        private static int dllz_mat_set_to_float(System.IntPtr ptr, float value, int mem) { return -1; }
+        private static int dllz_mat_set_to_float2(System.IntPtr ptr, float2 value, int mem) { return -1; }
+        private static int dllz_mat_set_to_float3(System.IntPtr ptr, float3 value, int mem) { return -1; }
+        private static int dllz_mat_set_to_float4(System.IntPtr ptr, float4 value, int mem) { return -1; }
+        private static int dllz_mat_set_to_uchar(System.IntPtr ptr, byte value, int mem) { return -1; }
+        private static int dllz_mat_set_to_uchar2(System.IntPtr ptr, char2 value, int mem) { return -1; }
+        private static int dllz_mat_set_to_uchar3(System.IntPtr ptr, char3 value, int mem) { return -1; }
+        private static int dllz_mat_set_to_uchar4(System.IntPtr ptr, char4 value, int mem) { return -1; }
+        private static int dllz_mat_update_cpu_from_gpu(System.IntPtr ptr) { return -1; }
+        private static int dllz_mat_update_gpu_from_cpu(System.IntPtr ptr) { return -1; }
+        private static int dllz_mat_read(System.IntPtr ptr, string filePath) { return -1; }
+        private static int dllz_mat_write(System.IntPtr ptr, string filePath, int compression_level) { return -1; }
+        private static int dllz_mat_copy_to(System.IntPtr ptr, System.IntPtr dest, int cpyType) { return -1; }
+        private static int dllz_mat_get_width(System.IntPtr ptr) { return 0; }
+        private static int dllz_mat_get_height(System.IntPtr ptr) { return 0; }
+        private static int dllz_mat_get_channels(System.IntPtr ptr) { return 0; }
+        private static int dllz_mat_get_memory_type(System.IntPtr ptr) { return 0; }
+        private static int dllz_mat_get_pixel_bytes(System.IntPtr ptr) { return 0; }
+        private static int dllz_mat_get_step(System.IntPtr ptr) { return 0; }
+        private static int dllz_mat_get_step_bytes(System.IntPtr ptr) { return 0; }
+        private static int dllz_mat_get_width_bytes(System.IntPtr ptr) { return 0; }
+        private static bool dllz_mat_is_memory_owner(System.IntPtr ptr) { return false; }
+        private static sl.Resolution dllz_mat_get_resolution(System.IntPtr ptr) { return new sl.Resolution(); }
+        private static void dllz_mat_alloc(System.IntPtr ptr, int width, int height, int type, int mem) { }
+        private static int dllz_mat_set_from(System.IntPtr ptr, System.IntPtr source, int copyType) { return -1; }
+        private static System.IntPtr dllz_mat_get_ptr(System.IntPtr ptr, int mem) { return IntPtr.Zero; }
+        private static void dllz_mat_clone(System.IntPtr ptr, System.IntPtr ptrSource) { }
+#endif
 
         #endregion
 

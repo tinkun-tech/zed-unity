@@ -22,6 +22,7 @@ using UnityEngine.XR;
 public class ZEDMixedRealityPlugin : MonoBehaviour
 {
     #region DLL Calls
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
 	const string nameDll = sl.ZEDCommon.NameDLL;
 	[DllImport(nameDll, EntryPoint = "sl_compute_size_plane_with_gamma")]
 	private static extern System.IntPtr dllz_compute_size_plane_with_gamma(int width, int height, float perceptionDistance, float eyeToZedDistance, float planeDistance, float HMDFocal, float zedFocal);
@@ -57,6 +58,23 @@ public class ZEDMixedRealityPlugin : MonoBehaviour
 
 	[DllImport(nameDll, EntryPoint = "sl_drift_corrector_set_calibration_const_offset_transform")]
 	public static extern void dllz_drift_corrector_set_calibration_const_offset_transform(ref Pose pose);
+#else
+    // Fallback implementations for non-Windows platforms
+    private static System.IntPtr dllz_compute_size_plane_with_gamma(int width, int height, float perceptionDistance, float eyeToZedDistance, float planeDistance, float HMDFocal, float zedFocal) { 
+        Debug.LogWarning("ZED SDK: Mixed Reality operations are not supported on this platform. Windows is required."); 
+        return System.IntPtr.Zero; 
+    }
+    private static float dllz_compute_hmd_focal(int width, int height, float w, float h) { return 0f; }
+    private static void dllz_latency_corrector_add_key_pose(ref Vector3 translation, ref Quaternion rotation, ulong timeStamp) { }
+    private static int dllz_latency_corrector_get_transform(ulong timeStamp, bool useLatency, out Vector3 translation, out Quaternion rotation) { translation = Vector3.zero; rotation = Quaternion.identity; return -1; }
+    private static void dllz_latency_corrector_initialize(int device) { }
+    private static void dllz_latency_corrector_shutdown() { }
+    public static void dllz_drift_corrector_initialize() { }
+    public static void dllz_drift_corrector_shutdown() { }
+    public static void dllz_drift_corrector_get_tracking_data(ref TrackingData trackingData, ref Pose HMDTransform, ref Pose latencyPose, int hasValidTrackingPosition, bool checkDrift) { }
+    public static void dllz_drift_corrector_set_calibration_transform(ref Pose pose) { }
+    public static void dllz_drift_corrector_set_calibration_const_offset_transform(ref Pose pose) { }
+#endif
     #endregion
 
     /// <summary>

@@ -1,6 +1,7 @@
 //======= Copyright (c) Stereolabs Corporation, All rights reserved. ===============
 
 using System.Runtime.InteropServices;
+using UnityEngine;
 
 /// <summary>
 /// Stores the camera settings (brightness/contrast, gain/exposure, etc.) and interfaces with the ZED
@@ -13,13 +14,26 @@ using System.Runtime.InteropServices;
 public class ZEDCameraSettings
 {
     #region DLL Calls
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
     const string nameDll = sl.ZEDCommon.NameDLL;
     [DllImport(nameDll, EntryPoint = "sl_set_video_settings")]
     private static extern void dllz_set_video_settings(int id, int mode, int value, int usedefault);
 
     [DllImport(nameDll, EntryPoint = "sl_get_video_settings")]
     private static extern int dllz_get_video_settings(int id, int mode);
+#else
+    // Fallback implementations for non-Windows platforms
+    private static void dllz_set_video_settings(int id, int mode, int value, int usedefault)
+    {
+        Debug.LogWarning("ZED SDK: Camera settings are not supported on this platform. Windows is required.");
+    }
 
+    private static int dllz_get_video_settings(int id, int mode)
+    {
+        Debug.LogWarning("ZED SDK: Camera settings are not supported on this platform. Windows is required.");
+        return 0;
+    }
+#endif
     #endregion
 
     /// <summary>

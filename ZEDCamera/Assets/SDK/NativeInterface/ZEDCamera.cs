@@ -10,6 +10,7 @@ namespace sl
 {
     public static class NativeWrapper
     {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         [DllImport("kernel32")]
         private static extern IntPtr LoadLibrary(string dllToLoad);
 
@@ -82,6 +83,24 @@ namespace sl
                 throw new InvalidOperationException("Function not loaded.");
             return _checkZEDPlugin(ZEDCamera.PluginVersion.Major, ZEDCamera.PluginVersion.Minor);
         }
+#else
+        // Fallback implementations for non-Windows platforms
+        private static IntPtr LoadLibrary(string dllToLoad) { return IntPtr.Zero; }
+        private static IntPtr GetProcAddress(IntPtr hModule, string procedureName) { return IntPtr.Zero; }
+        private static bool FreeLibrary(IntPtr hModule) { return false; }
+        
+        public static bool Init()
+        {
+            Debug.LogWarning("ZED SDK: Native library loading is not supported on this platform. Windows is required.");
+            return false;
+        }
+        
+        public static int CheckPlugin()
+        {
+            Debug.LogWarning("ZED SDK: Plugin check is not supported on this platform. Windows is required.");
+            return 1; // Return error code indicating incompatibility
+        }
+#endif
     }
 
     /// <summary>
@@ -365,6 +384,7 @@ namespace sl
         public static readonly System.Version PluginVersion = new System.Version(5, 0, 0);
 
         /******** DLL members ***********/
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         [DllImport(nameDll, EntryPoint = "GetRenderEventFunc")]
         private static extern IntPtr GetRenderEventFunc();
 
@@ -878,6 +898,163 @@ namespace sl
 
         [DllImport(nameDll, EntryPoint = "sl_retrieve_image")]
         private static extern int dllz_retrieve_image(int cameraID, System.IntPtr ptr, int type, int mem, int width, int height);
+#else
+        // Fallback implementations for non-Windows platforms
+        private static IntPtr GetRenderEventFunc() { 
+            Debug.LogWarning("ZED SDK: Rendering operations are not supported on this platform. Windows is required."); 
+            return IntPtr.Zero; 
+        }
+        private static void dllz_register_callback_debuger(DebugCallback callback) { }
+        private static void dllz_unload_all_instances() { }
+        private static void dllz_unload_instance(int id) { }
+        private static bool dllz_find_usb_device(USB_DEVICE dev) { return false; }
+        private static int dllz_generate_unique_id(byte[] id) { return 0; }
+        private static bool dllz_create_camera(int cameraID) { return false; }
+        private static int dllz_open(int cameraID, ref dll_initParameters parameters, uint serialNumber, System.Text.StringBuilder svoPath, System.Text.StringBuilder ipStream, int portStream, System.Text.StringBuilder output, System.Text.StringBuilder opt_settings_path, System.Text.StringBuilder opencv_calib_path) { return -1; }
+        private static void dllz_close(int cameraID) { }
+        private static int dllz_grab(int cameraID, ref sl.RuntimeParameters runtimeParameters) { return -1; }
+        private static void dllz_get_device_list(sl.DeviceProperties[] deviceList, out int nbDevices) { nbDevices = 0; }
+        private static void dllz_get_streaming_device_list(sl.StreamingProperties[] streamingDeviceList, out int nbDevices) { nbDevices = 0; }
+        private static int dllz_reboot(int serialNumber, bool fullReboot) { return -1; }
+        private static int dllz_enable_recording(int cameraID, System.Text.StringBuilder video_filename, int compresssionMode, int bitrate, int target_fps, bool transcode) { return -1; }
+        private static IntPtr dllz_get_recording_status(int cameraID) { return IntPtr.Zero; }
+        private static IntPtr dllz_get_recording_parameters(int cameraID) { return IntPtr.Zero; }
+        private static bool dllz_disable_recording(int cameraID) { return false; }
+        private static void dllz_pause_recording(int cameraID, bool status) { }
+        private static ERROR_CODE dllz_ingest_data_into_svo(int cameraID, ref SVOData data) { return ERROR_CODE.FAILURE; }
+        private static int dllz_get_svo_data_size(int cameraID, string key, ulong ts_begin, ulong ts_end) { return 0; }
+        private static ERROR_CODE dllz_retrieve_svo_data(int cameraID, string key, int nb_data, SVOData[] data, ulong ts_begin, ulong ts_end) { return ERROR_CODE.FAILURE; }
+        private static int dllz_get_svo_data_keys_size(int cameraID) { return 0; }
+        private static void dllz_get_svo_data_keys(int cameraID, int nb_keys, string[] keys) { }
+        private static void dllz_retrieve_textures(int cameraID) { }
+        private static ulong dllz_get_updated_textures_timestamp(int cameraID) { return 0; }
+        private static void dllz_swap_textures(int cameraID) { }
+        private static int dllz_register_texture_image_type(int cameraID, int option, IntPtr id, int width, int height) { return -1; }
+        private static int dllz_register_texture_measure_type(int cameraID, int option, IntPtr id, int width, int height) { return -1; }
+        private static int dllz_unregister_texture_measure_type(int cameraID, int option) { return -1; }
+        private static int dllz_unregister_texture_image_type(int cameraID, int option) { return -1; }
+        private static IntPtr dllz_get_copy_mat_texture_image_type(int cameraID, int option) { return IntPtr.Zero; }
+        private static IntPtr dllz_get_copy_mat_texture_measure_type(int cameraID, int option) { return IntPtr.Zero; }
+        private static bool dllz_is_video_setting_supported(int id, int setting) { return false; }
+        private static void dllz_set_video_settings(int id, int mode, int value) { }
+        private static int dllz_get_video_settings(int id, int mode, ref int value) { return -1; }
+        private static int dllz_set_roi_for_aec_agc(int id, int side, sl.Rect roi, bool reset) { return -1; }
+        private static int dllz_get_roi_for_aec_agc(int id, int side, ref sl.Rect roi) { return -1; }
+        private static int dllz_get_input_type(int cameraID) { return 0; }
+        private static float dllz_get_camera_fps(int cameraID) { return 0; }
+        private static bool dllz_is_opened(int cameraID) { return false; }
+        private static int dllz_get_width(int cameraID) { return 0; }
+        private static int dllz_get_height(int cameraID) { return 0; }
+        private static void dllz_update_self_calibration(int cameraID) { }
+        private static IntPtr dllz_get_calibration_parameters(int cameraID, bool raw) { return IntPtr.Zero; }
+        private static IntPtr dllz_get_sensors_configuration(int cameraID) { return IntPtr.Zero; }
+        private static int dllz_get_camera_model(int cameraID) { return 0; }
+        private static int dllz_get_camera_firmware(int cameraID) { return 0; }
+        private static int dllz_get_sensors_firmware(int cameraID) { return 0; }
+        private static int dllz_get_zed_serial(int cameraID) { return 0; }
+        private static void dllz_get_camera_imu_transform(int cameraID, out Vector3 translation, out Quaternion rotation) { translation = Vector3.zero; rotation = Quaternion.identity; }
+        private static ulong dllz_get_camera_timestamp(int cameraID) { return 0; }
+        private static ulong dllz_get_current_timestamp(int cameraID) { return 0; }
+        private static ulong dllz_get_image_timestamp(int cameraID) { return 0; }
+        private static uint dllz_get_frame_dropped_count(int cameraID) { return 0; }
+        private static void dllz_get_frame_dropped_percent(int cameraID, ref float droppedPercent) { droppedPercent = 0; }
+        private static IntPtr dllz_get_sdk_version() { return IntPtr.Zero; }
+        private static int dllz_convert_coordinate_system(ref Quaternion rotation, ref Vector3 translation, sl.COORDINATE_SYSTEM coordSystemSrc, sl.COORDINATE_SYSTEM coordSystemDest) { return -1; }
+        private static void dllz_compute_offset(float[] A, float[] B, int nbVectors, float[] C) { }
+        private static System.IntPtr dllz_compute_optical_center_offsets(ref Vector4 calibLeft, ref Vector4 calibRight, int width, int height, float planeDistance) { return IntPtr.Zero; }
+        private static int dllz_retrieve_measure(int cameraID, System.IntPtr ptr, int type, int mem, int width, int height) { return -1; }
+        private static int dllz_retrieve_image(int cameraID, System.IntPtr ptr, int type, int mem, int width, int height) { return -1; }
+        // Add additional fallback methods for other DLL imports as needed
+        private static void dllz_transform_pose(ref Quaternion quaternion, ref Vector3 translation, ref Quaternion targetQuaternion, ref Vector3 targetTranslation) { }
+        // Spatial mapping fallbacks
+        private static int dllz_enable_spatial_mapping(int cameraID, ref SpatialMappingParameters mappingParams) { return -1; }
+        private static void dllz_disable_spatial_mapping(int cameraID) { }
+        private static int dllz_pause_spatial_mapping(int cameraID, bool status) { return -1; }
+        private static int dllz_request_mesh_async(int cameraID) { return -1; }
+        private static int dllz_get_mesh_request_status_async(int cameraID) { return -1; }
+        private static int dllz_update_mesh(int cameraID, int[] nbVerticesInSubmeshes, int[] nbTrianglesInSubmeshes, ref int nbSubmeshes, int[] updatedIndices, ref int nbVertices, ref int nbTriangles, int nbSubmesh) { return -1; }
+        private static int dllz_retrieve_mesh(int cameraID, Vector3[] vertices, int[] triangles, int maxSubmesh, Vector2[] uvs, IntPtr texture) { return -1; }
+        private static bool dllz_save_mesh(int cameraID, string filename, MESH_FILE_FORMAT format) { return false; }
+        private static bool dllz_save_point_cloud(int cameraID, string filename, MESH_FILE_FORMAT format) { return false; }
+        private static int dllz_load_mesh(int cameraID, string filename, int[] nbVerticesInSubmeshes, int[] nbTrianglesInSubmeshes, ref int nbSubmeshes, int[] updatedIndices, ref int nbUpdatedSubmeshes, int[] nbVerticesInUpdatedSubmeshes, int[] nbTrianglesInUpdatedSubmeshes, int[] numVerticesInTexture, int[] numTrianglesInTexture, ref int nbTexture, int[] textureSize) { return -1; }
+        private static int dllz_apply_texture(int cameraID, int[] nbVerticesInSubmeshes, int[] nbTrianglesInSubmeshes, int nbSubmeshes, int[] updatedIndices, int nbUpdatedSubmeshes, int[] nbVerticesInUpdatedSubmeshes, int[] nbTrianglesInUpdatedSubmeshes) { return -1; }
+        private static bool dllz_filter_mesh(int cameraID, FILTER meshFilter, int[] nbVerticesInSubemeshes, int[] nbTrianglesInSubemeshes, ref int nbSubmeshes, int[] updatedIndices, ref int nbVertices, ref int nbTriangles, int nbSubmesh) { return false; }
+        private static IntPtr dllz_get_spatial_mapping_parameters(int cameraID) { return IntPtr.Zero; }
+        // Positional tracking fallbacks  
+        private static int dllz_enable_positional_tracking(int cameraID, ref Quaternion quat, ref Vector3 vec, bool enableAreaMemory, bool enablePoseSmoothing, bool setFloorAsOrigin, bool setAsStatic, bool enableIMUFusion, string areaFilePath) { return -1; }
+        private static void dllz_disable_positional_tracking(int cameraID, string areaFilePath) { }
+        private static int dllz_save_area_map(int cameraID, System.Text.StringBuilder areaFilePath) { return -1; }
+        private static sl.AREA_EXPORT_STATE dllz_get_area_export_state(int cameraID) { return sl.AREA_EXPORT_STATE.AREA_EXPORT_STATE_NOT_STARTED; }
+        private static int dllz_set_imu_prior_orientation(int cameraID, Quaternion rotation) { return -1; }
+        private static int dllz_get_position_at_target_frame(int cameraID, ref Quaternion quaternion, ref Vector3 translation, ref Quaternion targetQuaternion, ref Vector3 targetTranslation, int reference_frame) { return -1; }
+        private static int dllz_get_position(int cameraID, ref Quaternion quat, ref Vector3 vec, int referenceFrame) { return -1; }
+        private static int dllz_get_position_data(int cameraID,ref Pose pose, int reference_frame) { return -1; }
+        private static int dllz_reset_positional_tracking(int cameraID, ref Quaternion rotation, ref Vector3 translation) { return -1; }
+        private static int dllz_reset_positional_tracking_with_offset(int cameraID, ref Quaternion rotation, ref Vector3 translation, ref Quaternion offsetQuaternion, ref Vector3 offsetTranslation) { return -1; }
+        private static IntPtr dllz_get_positional_tracking_parameters(int cameraID) { return IntPtr.Zero; }
+        // Object detection fallbacks
+        private static int dllz_enable_object_detection(int cameraID, ref ObjectDetectionParameters od_params) { return -1; }
+        private static IntPtr dllz_get_object_detection_parameters(int cameraID) { return IntPtr.Zero; }
+        private static void dllz_disable_object_detection(int cameraID, uint instanceID, bool force_disable_all_instances) { }
+        private static int dllz_ingest_custom_box_objects(int cameraID, int nb_objects, CustomBoxObjectData[] objects_in, uint instanceID) { return -1; }
+        private static int dllz_retrieve_objects_data(int cameraID, ref ObjectDetectionRuntimeParameters od_params, ref Objects objs, uint instanceID) { return -1; }
+        private static int dllz_retrieve_custom_objects(int cameraID, ref dll_customObjectDetectionRuntimeParameters od_params, ref Objects objs, uint instanceID) { return -1; }
+        // Body tracking fallbacks
+        private static int dllz_enable_body_tracking(int cameraID, ref BodyTrackingParameters bt_params) { return -1; }
+        private static IntPtr dllz_get_body_tracking_parameters(int cameraID) { return IntPtr.Zero; }
+        private static void dllz_disable_body_tracking(int cameraID, uint instanceID, bool force_disable_all_instances) { }
+        private static int dllz_retrieve_bodies_data(int cameraID, ref BodyTrackingRuntimeParameters bt_params, ref Bodies bodies, uint instanceID) { return -1; }
+        private static int dllz_update_objects_batch(int cameraID, out int nbBatches) { nbBatches = 0; return -1; }
+        private static int dllz_get_objects_batch_data(int cameraID, int batch_index, ref int numData, ref int id, ref OBJECT_CLASS label, ref OBJECT_SUBCLASS sublabel, ref POSITIONAL_TRACKING_STATE trackingState, Vector3[] position, float[,] positionCovariances, Vector3[] velocities, ulong[] timestamps, Vector2[,] boundingBoxes2D, Vector3[,] boundingBoxes, float[] confidences, OBJECT_ACTION_STATE[] actionStates, Vector2[,] headBoundingBoxes2D, Vector3[,] headBoundingBoxes, Vector3[] headPositions) { return -1; }
+        // Save utils fallbacks
+        private static int dllz_save_current_image(int cameraID, VIEW view, string filename) { return -1; }
+        private static int dllz_save_current_depth(int cameraID, int side, string filename) { return -1; }
+        private static int dllz_save_current_point_cloud(int cameraID, int side, string filename) { return -1; }
+        // Additional missing fallback implementations
+        private static void dllz_set_svo_position(int cameraID, int frame) { }
+        private static int dllz_get_confidence_threshold(int cameraID) { return 0; }
+        private static int dllz_get_svo_position(int cameraID) { return 0; }
+        private static int dllz_get_svo_number_of_frames(int cameraID) { return 0; }
+        private static float dllz_get_depth_min_range_value(int cameraID) { return 0; }
+        private static float dllz_get_depth_max_range_value(int cameraID) { return 0; }
+        private static int dllz_enable_tracking(int cameraID, ref Quaternion quat, ref Vector3 vec, bool enableSpatialMemory, bool enablePoseSmoothing, bool enableFloorAlignment, bool trackingIsStatic, bool enableIMUFusion, float depthMinRange, bool setGravityAsOrigin, sl.POSITIONAL_TRACKING_MODE mode, System.Text.StringBuilder aeraFilePath) { return -1; }
+        private static void dllz_disable_tracking(int cameraID, System.Text.StringBuilder path) { }
+        private static bool dllz_is_positional_tracking_enabled(int cameraID) { return false; }
+        private static IntPtr dllz_get_positional_tracking_status(int cameraID) { return IntPtr.Zero; }
+        private static int dllz_reset_tracking(int cameraID, Quaternion rotation, Vector3 translation) { return -1; }
+        private static int dllz_reset_tracking_with_offset(int cameraID, Quaternion rotation, Vector3 translation, Quaternion offsetQuaternion, Vector3 offsetTranslation) { return -1; }
+        private static int dllz_estimate_initial_position(int cameraID, ref Quaternion quaternion, ref Vector3 translation, int countSuccess, int countTimeout) { return -1; }
+        private static int dllz_get_internal_imu_orientation(int cameraID, ref Quaternion rotation, int reference_time) { return -1; }
+        private static int dllz_get_internal_sensors_data(int cameraID, ref SensorsData imuData, int reference_time) { return -1; }
+        private static int dllz_set_region_of_interest(int cameraID, IntPtr roiMask, bool[] module) { return -1; }
+        private static int dllz_get_region_of_interest(int cameraID, IntPtr roiMask, int width, int height, MODULE module) { return -1; }
+        private static int dllz_start_region_of_interest_auto_detection(int cameraID, ref RegionOfInterestParameters roiParams) { return -1; }
+        private static int dllz_get_region_of_interest_auto_detection_status(int cameraID) { return -1; }
+        private static int dllz_update_fused_point_cloud(int cameraID, ref int pbPoints) { return -1; }
+        private static int dllz_retrieve_fused_point_cloud(int cameraID, Vector4[] points) { return -1; }
+        private static bool dllz_load_mesh(int cameraID, string filename, int[] nbVerticesInSubemeshes, int[] nbTrianglesInSubemeshes, ref int nbSubmeshes, int[] updatedIndices, ref int nbVertices, ref int nbTriangles, int nbMaxSubmesh, int[] textureSize) { return false; }
+        private static bool dllz_apply_texture(int cameraID, int[] nbVerticesInSubemeshes, int[] nbTrianglesInSubemeshes, ref int nbSubmeshes, int[] updatedIndices, ref int nbVertices, ref int nbTriangles, int[] textureSize, int nbSubmesh) { return false; }
+        private static int dllz_get_spatial_mapping_state(int cameraID) { return 0; }
+        private static void dllz_spatial_mapping_merge_chunks(int cameraID, int numberFaces, int[] nbVerticesInSubemeshes, int[] nbTrianglesInSubemeshes, ref int nbSubmeshes, int[] updatedIndices, ref int nbVertices, ref int nbTriangles, int nbSubmesh) { }
+        private static void dllz_spatial_mapping_get_gravity_estimation(int cameraID, ref Vector3 v) { v = Vector3.down; }
+        private static IntPtr dllz_find_floor_plane(int cameraID, out Quaternion rotation, out Vector3 translation, Quaternion priorQuaternion, Vector3 priorTranslation) { rotation = Quaternion.identity; translation = Vector3.zero; return IntPtr.Zero; }
+        private static IntPtr dllz_find_plane_at_hit(int cameraID, Vector2 HitPixel, ref sl_PlaneDetectionParameters plane_params, bool refine) { return IntPtr.Zero; }
+        private static int dllz_convert_floorplane_to_mesh(int cameraID, Vector3[] vertices, int[] triangles, out int numVertices, out int numTriangles) { numVertices = 0; numTriangles = 0; return -1; }
+        private static int dllz_convert_hitplane_to_mesh(int cameraID, Vector3[] vertices, int[] triangles, out int numVertices, out int numTriangles) { numVertices = 0; numTriangles = 0; return -1; }
+        private static int dllz_enable_streaming(int cameraID, sl.STREAMING_CODEC codec, uint bitrate, ushort port, int gopSize, int adaptativeBitrate, int chunk_size, int target_fps) { return -1; }
+        private static int dllz_is_streaming_enabled(int cameraID) { return 0; }
+        private static void dllz_disable_streaming(int cameraID) { }
+        private static IntPtr dllz_get_streaming_parameters(int cameraID) { return IntPtr.Zero; }
+        private static IntPtr dllz_check_AI_model_status(AI_MODELS model, int gpu_id) { return IntPtr.Zero; }
+        private static int dllz_optimize_AI_model(AI_MODELS model, int gpu_id) { return -1; }
+        private static float dllz_get_depth_value(int cameraID, uint x, uint y) { return -1.0f; }
+        private static float dllz_get_distance_value(int cameraID, uint x, uint y) { return -1.0f; }
+        private static bool dllz_get_normal_value(int cameraID, uint x, uint y, out Vector4 value) { value = Vector4.zero; return false; }
+        private static bool dllz_get_xyz_value(int cameraID, uint x, uint y, out Vector4 value) { value = Vector4.zero; return false; }
+        private static float dllz_get_current_min_max_depth(int cameraID, ref float min, ref float max) { min = 0; max = 0; return -1.0f; }
+        private static int dllz_get_svo_position_at_timestamp(int cameraID, ulong timestamp) { return -1; }
+        private static float dllz_get_frame_dropped_percent(int cameraID) { return 0.0f; }
+#endif
 
         #endregion
 
